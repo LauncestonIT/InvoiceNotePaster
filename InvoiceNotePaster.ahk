@@ -9,7 +9,7 @@ Gui, Add, Edit, vClientName w300
 Gui, Add, Text,, Labour Description:
 Gui, Add, Edit, vLabourDesc w300
 Gui, Add, Text,, Parts Information:
-Gui, Add, Edit, vParts w300
+Gui, Add, Edit, vParts w300 r5  ; Multiline text box with 5 rows
 
 ; Add Submit and Cancel buttons aligned with the input fields
 Gui, Add, Button, x10 y+20 w80 h30 gSubmit, Submit
@@ -51,6 +51,17 @@ DaySuffix := SubStr(CurrentDay, -1) = 1 && CurrentDay != 11 ? "st"
 
 FormattedDate := DayOfWeek . " " . CurrentDay . DaySuffix . " of " . CurrentMonth . " " . CurrentYear
 
+; Format the Parts field for better readability
+FormattedParts := ""
+Loop, Parse, Parts, `n, `r  ; Parse each line in the Parts field
+{
+    if (A_LoopField != "")  ; Skip empty lines
+        FormattedParts .= "- " . A_LoopField . "`n"
+}
+
+; Trim any trailing newlines from FormattedParts
+FormattedParts := RTrim(FormattedParts, "`n")
+
 ; Use SendInput for reliable keystroke sending with better formatting
 SendInput, ^b^uINVOICE NOTE^b^u`n  ; Bold and underline "INVOICE NOTE"
 SendInput, ^bClient:^b %ClientName%`n
@@ -61,7 +72,7 @@ SendInput, ^bLabour:^b Refer to time entries`n
 Sleep, 50
 SendInput, ^bLabour Description:^b %LabourDesc%`n
 Sleep, 50
-SendInput, ^bParts:^b %Parts%
+SendInput, ^bParts:^b`n%FormattedParts%
 Sleep, 100  ; Ensure all text is properly inserted
 
 ; Display the final message
